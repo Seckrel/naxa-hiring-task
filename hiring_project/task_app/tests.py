@@ -1,3 +1,9 @@
 from django.test import TestCase
+from django.core.files.uploadedfile import SimpleUploadedFile
+from rest_framework.test import APIClient
 
-# Create your tests here.
+
+class CsvPostViewTestCase(TestCase):
+    def setUp(self) -> None:
+        pass
+    

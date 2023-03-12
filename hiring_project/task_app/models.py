@@ -32,7 +32,7 @@ class Municipality(models.Model):
 
 class Donor(models.Model):
     donor_id = models.AutoField(primary_key=True)
-    donor_name = models.CharField(max_length=500)
+    donor_name = models.CharField(max_length=1000)
 
     def __str__(self):
         return self.donor_name
@@ -40,7 +40,7 @@ class Donor(models.Model):
 
 class ExecutingAgency(models.Model):
     executing_agency_id = models.AutoField(primary_key=True)
-    executing_agency_name = models.CharField(max_length=500)
+    executing_agency_name = models.CharField(max_length=1000)
 
     def __str__(self):
         return self.executing_agency_name
@@ -48,7 +48,7 @@ class ExecutingAgency(models.Model):
 
 class ImplementingPartner(models.Model):
     implementing_partner_id = models.AutoField(primary_key=True)
-    implementing_partner_name = models.CharField(max_length=500)
+    implementing_partner_name = models.CharField(max_length=1000)
 
     def __str__(self):
         return self.implementing_partner_name
@@ -56,7 +56,7 @@ class ImplementingPartner(models.Model):
 
 class CounterpartMinistry(models.Model):
     counterpart_ministry_id = models.AutoField(primary_key=True)
-    counterpart_ministry_name = models.CharField(max_length=500)
+    counterpart_ministry_name = models.CharField(max_length=1000)
 
     def __str__(self):
         return self.counterpart_ministry_name
@@ -123,11 +123,12 @@ class Project(models.Model):
     municipality = models.ForeignKey(
         Municipality, on_delete=models.CASCADE, related_name="municipality")
     agreement = models.ForeignKey(
-        Agreement, on_delete=models.CASCADE, related_name="agreement")
+        Agreement, on_delete=models.CASCADE, related_name="agreement", null=True)
     commitment_disbursement = models.ForeignKey(
         CommitmentDisbursement, on_delete=models.CASCADE, related_name="commitment_disbursement")
-    # sector = models.ForeignKey(
-    #     Sector, on_delete=models.CASCADE, related_name="sector")
+    counterpart_ministry = models.ForeignKey(
+        CounterpartMinistry, on_delete=models.CASCADE, related_name="counterpart_ministry",)
+
     donor = models.ForeignKey(
         Donor, on_delete=models.CASCADE, related_name="donor")
 
