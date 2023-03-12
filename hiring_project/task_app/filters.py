@@ -43,5 +43,5 @@ class ProjectFilter(django_filters.FilterSet):
             'type_of_assistance': ['icontains',],
             'executing_agency': ['icontains'],
             'implementing_partner': ['icontains'],
-            'project_sector__sector_name': ['icontains', "icontains"]
+            'project_sector__sector_name': ['icontains']
         }

@@ -1,3 +1,4 @@
+from django.db import transaction
 from ..models import *
 from .convert_date import convert_date_format
 
@@ -31,6 +32,29 @@ def create_or_get_counterpart_ministry(counterpart_ministry_name):
     return counterpart_ministry_obj
 
 
+def create_or_get_many_fields(fields_, Model, model_field):
+    """
+    It either creates a new instance of a Model or get already existing object.
+    Use when there is many-to-many relation with Projects model
+
+    Args:
+        fields_ (str): value inside somefield in row 
+        Model (type(django.models)): Django model that is in many-to-many relation with Project model
+        model_field (str): field of Model
+
+    Returns:
+        list(model objects): A list of all obj that are either created or fetched
+    """
+    objs = []
+
+    for value in fields_.split(","):
+        obj, __ = Model.objects.get_or_create(**{model_field: value.strip()})
+        objs.append(obj)
+
+    return objs
+
+
+@transaction.atomic
 def create_project_instance(row) -> None:
     """
     Creates a Project instance based on the data in the given row.
@@ -54,60 +78,64 @@ def create_project_instance(row) -> None:
         None
     """
 
-    # Get object for following models, if exists, else create it
-    province_obj = create_or_get_province(row["Province"])
-    district_obj = create_or_get_district(row["District"], province_obj)
-    municipality_obj = create_or_get_municipality(
-        row["Municipality"], district_obj)
+    try:
+        # Get object for following models, if exists, else create it
+        province_obj = create_or_get_province(row["Province"])
+        district_obj = create_or_get_district(row["District"], province_obj)
+        municipality_obj = create_or_get_municipality(
+            row["Municipality"], district_obj)
 
-    donor_obj = create_or_get_donor(row["Donor"])
-    counterpart_ministry_obj = create_or_get_counterpart_ministry(
-        row["Counterpart Ministry"])
+        donor_obj = create_or_get_donor(row["Donor"])
+        counterpart_ministry_obj = create_or_get_counterpart_ministry(
+            row["Counterpart Ministry"])
 
-    agreement_date = convert_date_format(
-        # Agreement Date can be empty which case None is used
-        row["Agreement Date"]) if row["Agreement Date"] != "" else None
-    agreement_obj, __ = Agreement.objects.get_or_create(
-        agreement_date=agreement_date, defaults={"agreement_date": agreement_date})
+        agreement_date = convert_date_format(
+            # Agreement Date can be empty which case None is used
+            row["Agreement Date"]) if row["Agreement Date"] != "" else None
+        agreement_obj, __ = Agreement.objects.get_or_create(
+            agreement_date=agreement_date, defaults={"agreement_date": agreement_date})
 
-    commitment_disbursement_obj, _ = CommitmentDisbursement.objects.get_or_create(
-        commitment=row["Commitments"],
-        # Disbursement can be empty string in which case set None
-        disbursement=row["Disbursement"] if row["Disbursement"] != "" else None
-    )
+        commitment_disbursement_obj, _ = CommitmentDisbursement.objects.get_or_create(
+            commitment=row["Commitments"],
+            # Disbursement can be empty string in which case set None
+            disbursement=row["Disbursement"] if row["Disbursement"] != "" else None
+        )
 
-    # bulk creating any field that contains multiple values
-    executing_agencies_obj = ExecutingAgency.objects.bulk_create([
-        ExecutingAgency(executing_agency_name=name.strip()) for name in row["Executing Agency"].split(",")
-    ])
-    implementing_partner_obj = ImplementingPartner.objects.bulk_create([
-        ImplementingPartner(implementing_partner_name=name.strip()) for name in row["Implementing Partner"].split(",")
-    ])
-    type_of_assitance_obj = TypeOfAssistance.objects.bulk_create([
-        TypeOfAssistance(type_of_assistance=name.strip()) for name in row["Type of Assistance"].split(",")
-    ])
-    sector_obj = Sector.objects.bulk_create([
-        Sector(sector_name=name.strip()) for name in row["Sector"].split(",")
-    ])
+        executing_agencies_obj = create_or_get_many_fields(
+            row["Executing Agency"], ExecutingAgency, "executing_agency_name")
 
-    # create project instance
-    project_obj, __ = Project.objects.get_or_create(
-        project_title=row["Project Title"],
-        project_status=row["Project Status"],
-        budget_type=row["Budget Type"],
-        humanitarian=row["Humanitarian"],
-        municipality=municipality_obj,
-        agreement=agreement_obj,
-        commitment_disbursement=commitment_disbursement_obj,
-        counterpart_ministry=counterpart_ministry_obj,
-        donor=donor_obj,
-    )
+        implementing_partner_obj = create_or_get_many_fields(
+            row["Implementing Partner"], ImplementingPartner, "implementing_partner_name"
+        )
 
-    # single project might contain many type of assitance
-    project_obj.type_of_assistance.set(type_of_assitance_obj)
-    # single project might contain many executing agency
-    project_obj.executing_agency.set(executing_agencies_obj)
-    # single project might contain many implementing partner
-    project_obj.implementing_partner.set(implementing_partner_obj)
-    # single project might contain many sectors
-    project_obj.project_sector.set(sector_obj)
+        type_of_assitance_obj = create_or_get_many_fields(
+            row["Type of Assistance"], TypeOfAssistance, "type_of_assistance"
+        )
+
+        sector_obj = create_or_get_many_fields(
+            row["Sector"], Sector, "sector_name")
+
+        # create project instance
+        project_obj, __ = Project.objects.get_or_create(
+            project_title=row["Project Title"],
+            project_status=row["Project Status"],
+            budget_type=row["Budget Type"],
+            humanitarian=row["Humanitarian"],
+            municipality=municipality_obj,
+            agreement=agreement_obj,
+            commitment_disbursement=commitment_disbursement_obj,
+            counterpart_ministry=counterpart_ministry_obj,
+            donor=donor_obj,
+        )
+
+        # single project might contain many type of assitance
+        project_obj.type_of_assistance.set(type_of_assitance_obj)
+        # single project might contain many executing agency
+        project_obj.executing_agency.set(executing_agencies_obj)
+        # single project might contain many implementing partner
+        project_obj.implementing_partner.set(implementing_partner_obj)
+        # single project might contain many sectors
+        project_obj.project_sector.set(sector_obj)
+
+    except Exception as e:
+        raise e

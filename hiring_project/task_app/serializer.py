@@ -1,5 +1,9 @@
 from rest_framework import serializers
-from .models import *
+from .models import (
+    Province, District, Municipality, Donor, ExecutingAgency, ImplementingPartner,
+    CounterpartMinistry, Sector, TypeOfAssistance, Agreement, CommitmentDisbursement,
+    Project
+)
 
 
 class ProvinceSerializer(serializers.ModelSerializer):

@@ -1,6 +1,8 @@
 from django.urls import path
 from .views import UploadSheet, ListProjectAndFilter, SummaryOfProject, CountProjectsAndBudgets
 
+app_name = "task_app"
+
 urlpatterns = [
     path("upload-csv/", UploadSheet.as_view(), name="csv_to_db"),
     path("projects/", ListProjectAndFilter.as_view(), name="list_projects"),

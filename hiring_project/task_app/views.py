@@ -2,13 +2,16 @@ from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
+from django_filters.rest_framework import DjangoFilterBackend
+
+from django.db.models import Sum, Count, F
 from .models import Project
+
 from .serializer import ProjectSerializer
 from .filters import ProjectFilter
-import csv
 from .utils.deserializer import create_project_instance
-from django_filters.rest_framework import DjangoFilterBackend
-from django.db.models import Sum, Count, F
+
+import csv
 
 
 class UploadSheet(APIView):
@@ -135,7 +138,21 @@ class SummaryOfProject(ListAPIView):
             'commitment_disbursement__disbursement__sum'
         ]
 
-        budget = total_commitment - total_disbursement
+        budget = 0.0
+
+        try:
+            if total_disbursement is None:
+                budget = total_commitment
+
+            elif total_commitment is None:
+                budget = total_disbursement
+                
+            else:
+                budget = total_commitment - total_disbursement
+
+        except TypeError as e:
+            print(str(e))
+            budget = 0
 
         sector_summary = queryset \
             .annotate(

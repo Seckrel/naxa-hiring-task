@@ -98,9 +98,10 @@ CommitmentDisbursement
 The
     """
 
+
 class Province(models.Model):
     province_id = models.AutoField(primary_key=True)
-    province_name = models.CharField(max_length=255)
+    province_name = models.CharField(max_length=255, unique=True)
 
     def __str__(self):
         return self.province_name
@@ -108,7 +109,7 @@ class Province(models.Model):
 
 class District(models.Model):
     district_id = models.AutoField(primary_key=True)
-    district_name = models.CharField(max_length=255)
+    district_name = models.CharField(max_length=255, unique=True)
     province = models.ForeignKey(
         Province, on_delete=models.CASCADE, related_name="province")
 
@@ -118,7 +119,7 @@ class District(models.Model):
 
 class Municipality(models.Model):
     municipality_id = models.AutoField(primary_key=True)
-    municipality_name = models.CharField(max_length=255)
+    municipality_name = models.CharField(max_length=255, unique=True)
     district = models.ForeignKey(
         District, on_delete=models.CASCADE)
 
@@ -128,7 +129,7 @@ class Municipality(models.Model):
 
 class Donor(models.Model):
     donor_id = models.AutoField(primary_key=True)
-    donor_name = models.CharField(max_length=1000)
+    donor_name = models.CharField(max_length=1000, unique=True)
 
     def __str__(self):
         return self.donor_name
@@ -164,7 +165,6 @@ class Sector(models.Model):
 
     def __str__(self):
         return self.sector_name
-    
 
 
 class TypeOfAssistance(models.Model):
@@ -176,7 +176,7 @@ class TypeOfAssistance(models.Model):
 
     type_of_assistance_id = models.AutoField(primary_key=True)
     type_of_assistance = models.CharField(
-        max_length=6, choices=TYPE_OF_ASSISTANCE_CHOICES)
+        max_length=6, choices=TYPE_OF_ASSISTANCE_CHOICES, unique=True)
 
     def __str__(self):
         return self.type_of_assistance
