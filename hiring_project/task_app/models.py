@@ -1,6 +1,102 @@
 from django.db import models
 from django.core.validators import MinValueValidator
 
+"""
+Models:
+- Province: a geographical province.
+- District: a geographical district within a province.
+- Municipality: a geographical municipality within a district.
+- Donor: an organization that provides financial or material support for a project.
+- ExecutingAgency: an organization responsible for executing a project.
+- ImplementingPartner: an organization that partners with the executing agency to implement a project.
+- CounterpartMinistry: a ministry or government agency that is a counterpart to the project.
+- Sector: a sector or theme of the project.
+- TypeOfAssistance: a type of financial assistance for the project.
+- Agreement: an agreement associated with a project.
+- CommitmentDisbursement: the commitment and disbursement associated with a project.
+- Project: a project managed by the application.
+
+Schema:
+Schema 
+
+Province
+- ProvinceID (Primary Key)
+- ProvinceName
+
+District
+- DistrictID (Primary Key)
+- DistrictName
+- ProvinceID (Foreign Key referencing Province table)
+
+Municipality
+- MunicipalityID (Primary Key)
+- MunicipalityName
+- DistrictID (Foreign Key referencing District table)
+
+Donor
+- DonorID (Primary Key)
+- DonorName
+
+ExecutingAgency
+- ExecutingAgencyID (Primary Key)
+- ExecutingAgencyName
+
+ImplementingPartner
+- ImplementingPartnerID (Primary Key)
+- ImplementingPartnerName
+
+CounterpartMinistry
+- CounterpartMinistryID (Primary Key)
+- CounterpartMinistryName
+
+Sector
+- SectorID (Primary Key)
+- SectorName
+
+Project
+- ProjectID (Primary Key)
+- ProjectTitle
+- ProjectStatus
+- TypesOfAssistance
+- BudgetType
+- Humanitarian
+- MunicipalityID (Foreign Key referencing Municipality table)
+
+ProjectExecutingAgency
+- ProjectID (Foreign Key referencing Project table)
+- ExecutingAgencyID (Foreign Key referencing ExecutingAgency table)
+- PrimaryKey (ProjectID, ExecutingAgencyID)
+
+ProjectImplementingPartner
+- ProjectID (Foreign Key referencing Project table)
+- ImplementingPartnerID (Foreign Key referencing ImplementingPartner table)
+- PrimaryKey (ProjectID, ImplementingPartnerID)
+
+ProjectCounterpartMinistry
+- ProjectID (Foreign Key referencing Project table)
+- CounterpartMinistryID (Foreign Key referencing CounterpartMinistry table)
+- PrimaryKey (ProjectID, CounterpartMinistryID)
+
+ProjectSector
+- ProjectID (Foreign Key referencing Project table)
+- SectorID (Foreign Key referencing Sector table)
+- PrimaryKey (ProjectID, SectorID)
+
+Agreement
+- AgreementID (Primary Key)
+- AgreementDate
+- ProjectID (Foreign Key referencing Project table)
+- DonorID (Foreign Key referencing Donor table)
+- ExecutingAgencyID (Foreign Key referencing ExecutingAgency table)
+- SectorID (Foreign Key referencing Sector table)
+
+CommitmentDisbursement
+- CommitmentDisbursementID (Primary Key)
+- Commitment
+- Disbursement
+- AgreementID (Foreign Key referencing Agreement table)
+The
+    """
 
 class Province(models.Model):
     province_id = models.AutoField(primary_key=True)
