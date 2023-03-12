@@ -18,5 +18,5 @@ class ProjectFilter(django_filters.FilterSet):
             'type_of_assistance': ['exact',],
             'executing_agency': ['icontains'],
             'implementing_partner': ['icontains'],
-            'project_sector': ['exact']
+            'project_sector__sector_name': ['exact', "icontains"]
         }

@@ -3,7 +3,7 @@ from .convert_date import convert_date_format
 
 
 def multiple_fields_object_creator(field, Model, model_field):
-    field_list = field.split(",")
+    field_list = [i.strip() for i in field.split(",")]
 
     field_obj = []
 

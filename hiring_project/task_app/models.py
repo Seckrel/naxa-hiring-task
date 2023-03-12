@@ -64,10 +64,11 @@ class CounterpartMinistry(models.Model):
 
 class Sector(models.Model):
     sector_id = models.AutoField(primary_key=True)
-    sector_name = models.CharField(max_length=255)
+    sector_name = models.CharField(max_length=255, unique=True)
 
     def __str__(self):
         return self.sector_name
+    
 
 
 class TypeOfAssistance(models.Model):
@@ -145,29 +146,3 @@ class Project(models.Model):
 
     def __str__(self):
         return self.project_title
-
-
-# class Project_TypeOfAssitance(models.Model):
-#     project = models.ForeignKey(Project, on_delete=models.CASCADE)
-#     type_of_assistance_id = models.ForeignKey(
-#         TypeOfAssistance, on_delete=models.CASCADE)
-
-#     class Meta:
-#         unique_together = ("project_id", "type_of_assistance_id")
-
-
-# class Project_ExecutingAgency(models.Model):
-#     project = models.ForeignKey(Project, on_delete=models.CASCADE)
-#     executing_agency_id = models.ForeignKey(
-#         ExecutingAgency, on_delete=models.CASCADE)
-
-
-# class Project_ImplementingPartner(models.Model):
-#     project = models.ForeignKey(Project, on_delete=models.CASCADE)
-#     implementing_partner_id = models.ForeignKey(
-#         ImplementingPartner, on_delete=models.CASCADE)
-
-
-# class Project_Sector(models.Model):
-#     project = models.ForeignKey(Project, on_delete=models.CASCADE)
-#     sector_id = models.ForeignKey(Sector, on_delete=models.CASCADE)

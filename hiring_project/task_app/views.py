@@ -8,6 +8,7 @@ from .filters import ProjectFilter
 import csv
 from .utils.deserializer import create_project_instance
 from django_filters.rest_framework import DjangoFilterBackend
+from django.db.models import Sum, Count, F
 
 
 class UploadSheet(APIView):
@@ -30,7 +31,6 @@ class UploadSheet(APIView):
 
 
 class ListProjectAndFilter(ListAPIView):
-    # queryset = Project.objects.all()
     serializer_class = ProjectSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_class = ProjectFilter
@@ -39,29 +39,65 @@ class ListProjectAndFilter(ListAPIView):
         queryset = Project.objects.all()
         return queryset
 
-    # def get(self, request):
-    #     response_data = {}
 
-    #     try:
-    #         queryset = Project.objects.filter(
-    #             commitment_disbursement__commitment__exact=5000
-    #         )
+class SummaryOfProject(ListAPIView):
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = ProjectFilter
 
-    #         serializer = self.serializer_class(queryset, many=True)
-    #         response_data["data"] = serializer.data
-    #         response_data["success"] = True
-    #     except Exception as e:
-    #         response_data["success"] = False
-    #         response_data["error"] = str(e)
+    def get_queryset(self):
+        queryset = Project.objects.all()
+        return queryset
 
-    #     return Response(status=200, data=response_data)
+    def list(self, request):
+        queryset = self.filter_queryset(self.get_queryset())
 
+        project_count = queryset.count()
 
-class SummaryOfProject(APIView):
-    def get(self, request):
-        pass
+        total_commitment = queryset.aggregate(Sum("commitment_disbursement__commitment"))[
+            'commitment_disbursement__commitment__sum']
+
+        total_disbursement = queryset.aggregate(Sum("commitment_disbursement__disbursement"))[
+            'commitment_disbursement__disbursement__sum'
+        ]
+
+        budget = total_commitment - total_disbursement
+
+        sector_summary = queryset \
+            .annotate(
+                name=F("project_sector__sector_name"),
+                id=F("project_sector__sector_id"),
+                budget=Sum("commitment_disbursement__commitment") -
+                Sum("commitment_disbursement__disbursement")
+            ) \
+            .values("id", "name", "budget",) \
+            .annotate(
+                project_count=Count('id')
+            )
+
+        serializer = {
+            'project_count': project_count,
+            'total_budget': budget,
+            'sector': sector_summary
+        }
+
+        return Response(serializer)
 
 
 class CountProjectsAndBudgets(APIView):
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = ProjectFilter
+
+    filterset_fields = ['municipality__municipality_name',
+                        'municipality__district__district_name']
+
+    def get_queryset(self):
+        queryset = Project.objects.all()
+        return queryset
+
     def get(self, request):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        print("-------------here")
+
+        return Response({"data": queryset})
         pass
