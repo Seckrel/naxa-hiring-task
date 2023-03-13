@@ -103,6 +103,15 @@ def validate_agreement(sender, instance, **kwargs):
         raise ValidationError("Agreement fields must be a date")
 
 
+@receiver(pre_save, sender=CounterpartMinistry)
+def validate_counterpart_ministry(sender, instance, **kwargs):
+    counterpart_ministry_name = instance.counterpart_ministry_name
+
+    if not check_is_str(counterpart_ministry_name) or check_is_null(counterpart_ministry_name):
+        raise ValidationError(
+            "Name of Counterpart Ministry cannot be empty or numeric")
+
+
 @receiver(pre_save, sender=Project)
 def validate_project(sender, instance, **kwargs):
     project_title = instance.project_title

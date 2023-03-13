@@ -48,7 +48,7 @@ class UploadSheet(APIView):
 
         except ValidationError as e:
             return Response({"message": str(e)})
-        
+
         except Exception as e:
             print(e)
             return Response({"message": "error in uploading csv"})
@@ -59,6 +59,8 @@ class UploadSheet(APIView):
 class ListProjectAndFilter(ListAPIView):
     """
     View for listing Project instances and filtering the list by various fields.
+
+    E.g. Query: /api/v1/projects/?project_sector__sector_name__icontains=Health
 
     Attributes:
         serializer_class (class): The serializer class for serializing Project instances.
@@ -91,6 +93,8 @@ class SummaryOfProject(ListAPIView):
     """
     API View for generating a summary of Project instances, including the total number of projects, the total budget, 
     and a summary of projects by sector.
+
+    E.g. Query: /api/v1/summary/?project_sector__sector_name__icontains=agriculture
 
     Attributes:
         filter_backends (list): A list of backend classes for filtering the queryset.
@@ -186,6 +190,8 @@ class CountProjectsAndBudgets(ListAPIView):
     '''
     API View that returns a summary of the project count and budget for each municipality in the atabase.
     Summary report can be filtered based on municiaplity name and District name
+
+    E.g. Query: /api/v1/count-projects-budget/?municipality__district__district_name__icontains=Surkhet (Surkhet)
 
     Attributes:
         filter_backends (list): A list of backend classes for filtering the queryset.

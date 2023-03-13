@@ -127,6 +127,9 @@ class Municipality(models.Model):
     def __str__(self):
         return self.municipality_name
 
+    class Meta:
+        verbose_name_plural = "Municipalities"
+
 
 class Donor(models.Model):
     donor_id = models.AutoField(primary_key=True)
@@ -143,6 +146,9 @@ class ExecutingAgency(models.Model):
     def __str__(self):
         return self.executing_agency_name
 
+    class Meta:
+        verbose_name_plural = "Executing Agencies"
+
 
 class ImplementingPartner(models.Model):
     implementing_partner_id = models.AutoField(primary_key=True)
@@ -158,6 +164,9 @@ class CounterpartMinistry(models.Model):
 
     def __str__(self):
         return self.counterpart_ministry_name
+
+    class Meta:
+        verbose_name_plural = "Counter Ministries"
 
 
 class Sector(models.Model):
@@ -243,6 +252,3 @@ class Project(models.Model):
 
     def __str__(self):
         return self.project_title
-
-
-# models.signals.pre_save.connect(validate_project, sender=Project)
