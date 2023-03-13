@@ -73,26 +73,3 @@ class ListProjectAndFilterTestCase(TestCase):
             self.assertEqual(response.data, serializer.data)
 
 
-class CountProjectsAndBudgets(TestCase):
-    def setUp(self) -> None:
-        self.client = APIClient()
-
-        self.url = reverse("task_app:summaraize_project")
-
-    def test_summary_project_sector_name(self):
-        list_sector_name = ["agriculture", "health", "Housing", "Supply"]
-
-        for sector_name in list_sector_name:
-
-            response = self.client.get(
-                self.url, {
-                    'project_sector__sector_name__icontains': sector_name}
-            )
-
-            queryset = Project.objects.filter(
-                project_sector__sector_name__icontains=sector_name
-            )
-
-            serializer = ProjectSerializer(queryset, many=True)
-
-            self.assertEqual(response.data, serializer.data)

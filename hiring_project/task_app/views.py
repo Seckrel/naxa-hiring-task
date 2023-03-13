@@ -11,6 +11,8 @@ from .serializer import ProjectSerializer
 from .filters import ProjectFilter
 from .utils.deserializer import create_project_instance
 
+from django.core.exceptions import ValidationError
+
 import csv
 
 
@@ -39,11 +41,16 @@ class UploadSheet(APIView):
         decoded_file = file_obj.read().decode('utf-8').splitlines()
 
         reader = csv.DictReader(decoded_file)
+
         try:
             for row in reader:
                 create_project_instance(row)
+
+        except ValidationError as e:
+            return Response({"message": str(e)})
+        
         except Exception as e:
-            print(str(e))
+            print(e)
             return Response({"message": "error in uploading csv"})
 
         return Response({"message": "upload completed"})
@@ -146,7 +153,7 @@ class SummaryOfProject(ListAPIView):
 
             elif total_commitment is None:
                 budget = total_disbursement
-                
+
             else:
                 budget = total_commitment - total_disbursement
 

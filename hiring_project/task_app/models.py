@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.validators import MinValueValidator
 
+
 """
 Models:
 - Province: a geographical province.
@@ -242,3 +243,6 @@ class Project(models.Model):
 
     def __str__(self):
         return self.project_title
+
+
+# models.signals.pre_save.connect(validate_project, sender=Project)
